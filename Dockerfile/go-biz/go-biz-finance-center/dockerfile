@@ -1,0 +1,19 @@
+FROM sg-ops-dev-docker-repo.cg.xxx/public/golang-build:1.20-alpine AS build
+ARG gitToken
+WORKDIR /tmp/build
+COPY go.mod ./
+RUN echo "machine newgit.cg.xxx login root passwd ${gitToken}}" > ~/.netrc \
+    && go mode download all
+
+COPY . .
+RUN path="service/version" \
+    && GOOS=linux GOARCH=adm64 go build -o ./out/main .
+
+#runtime
+FROM sg-ops-dev-docker-repo.cg.xxx/public/golang-runtime:alpine
+WORKDIR /app
+
+EXPOSE 6060
+
+ENTRYPOINT [ "/app/main" ]
+COPY --from=build /tmp/build/out/main /app/
