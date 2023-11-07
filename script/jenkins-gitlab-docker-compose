@@ -1,0 +1,51 @@
+version: '3'
+services:
+  jenkins:
+    restart: always
+    container_name: jenkins
+    image: docker.io/jenkins/jenkins
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - $PWD/jenkins:/var/jenkins_home
+      - /etc/localtime:/etc/localtime 
+    environment:
+      - TZ=Asia/Shanghai
+    privileged: true
+    # networks:
+    #   back-tier:
+    #     ipv4_address: 10.10.10.10
+#    extra_hosts:
+#      - gitlab.alex.com: 10.10.10.11
+#      - jenkins.alex.com: 10.10.10.10
+
+  gitlab:
+    restart: always
+    container_name: gitlab
+    image: gitlab/gitlab-ce
+    ports:
+      - 8099:443
+      - 8100:80
+      - 8098:22
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - $PWD/gitlab/config:/etc/gitlab
+      - $PWD/gitlab/logs:/var/log/gitlab
+      - $PWD/gitlab/data:/var/opt/gitlab
+    environment:
+      - TZ=Asia/Shanghai
+    privileged: true
+    # networks:
+    #   back-tier:
+    #    ipv4_address: 10.10.10.11
+#    extra_hosts:
+#      - gitlab.alex.com: 10.10.10.11
+#      - jenkins.alex.com: 10.10.10.10
+
+# networks:
+#   back-tier:
+#     ipam:
+#       driver: default
+#       config:
+#         - subnet: 10.10.10.0/24
